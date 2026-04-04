@@ -56,7 +56,7 @@ src/
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/react-block-builder.git
+git clone https://github.com/bhavik-dreamz/react-block-builder.git
 cd react-block-builder
 
 # Install dependencies
