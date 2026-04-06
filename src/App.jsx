@@ -28,6 +28,8 @@ import '@wordpress/components/build-style/style.css';
 const EDITOR_SETTINGS = {
   hasFixedToolbar: true,
   hasInlineToolbar: false,
+  // -d added block mover as true 
+  hasBlockMover: true,
   focusMode: false,
   isRTL: false,
   keepCaretInsideBlock: false,

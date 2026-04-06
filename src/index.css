@@ -323,8 +323,9 @@ body {
 
 .block-editor-block-list__layout {
   min-height: 300px;
+  position: relative;
+  z-index: 1;
 }
-
 /* hides extra appender buttons that appear at bottom */
 .block-list-appender {
   display: none !important;
@@ -942,6 +943,7 @@ body {
   min-height: 400px;
   flex: 1;
   position: relative;
+  z-index: 0; 
 }
 
 /* ---- Empty state ---- */
