@@ -15,9 +15,12 @@ import { ShortcutProvider } from '@wordpress/keyboard-shortcuts';
 import { registerCoreBlocks } from '@wordpress/block-library';
 import { blockTemplates } from './data/blockTemplates';
 import { savePage, loadPage, listPages } from './data/api';
-//import { __experimentalGetBlockPatterns } from '@wordpress/blocks';
-
+import { __experimentalListView as ListView } from '@wordpress/block-editor';
 const DEFAULT_PAGE_ID = 'home';
+
+// -d adding the styles
+import '@wordpress/block-editor/build-style/style.css';
+import '@wordpress/components/build-style/style.css';
 
 // Database functions are now in src/data/api.js — swap the bodies there
 // to point at any real backend (Express, WordPress REST API, Supabase, etc.)
@@ -59,23 +62,27 @@ const EDITOR_SETTINGS = {
   ],
 };
 
+
+
 function App({ onViewSite }) {
-  const [blocks, setBlocks]       = useState([]);
-  const [output, setOutput]       = useState(null);
-  const [preview, setPreview]     = useState(false);
-  const [saved, setSaved]         = useState(false);
+  const [blocks, setBlocks] = useState([]);
+  const [output, setOutput] = useState(null);
+  const [preview, setPreview] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [pageTitle, setPageTitle] = useState('Home');
-  const [pageId]                  = useState(DEFAULT_PAGE_ID);
+  const [pageId] = useState(DEFAULT_PAGE_ID);
 
   // Step 20 — Undo / Redo
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const historyRef = useRef({ past: [], future: [] });
-  const blocksRef  = useRef([]);
+  const blocksRef = useRef([]);
+  // -d adding list view 
+  const [listViewOpen, setListViewOpen] = useState(false);
 
   // Step 19 — Template picker
-  const [templatePickerOpen,  setTemplatePickerOpen]  = useState(false);
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
   const [templateReplaceMode, setTemplateReplaceMode] = useState(false);
 
   // Keep blocksRef in sync so history closures always snapshot the latest state
@@ -84,6 +91,10 @@ function App({ onViewSite }) {
   useEffect(() => {
     loadBlocks();
   }, []);
+
+  useEffect(() => {
+  registerCoreBlocks();
+}, []);
 
   async function loadBlocks() {
     try {
@@ -162,7 +173,7 @@ function App({ onViewSite }) {
 
   function applyTemplate(tpl) {
     const newBlocks = tpl.blocks.map(makeBlock);
-    const result    = templateReplaceMode ? newBlocks : [...blocksRef.current, ...newBlocks];
+    const result = templateReplaceMode ? newBlocks : [...blocksRef.current, ...newBlocks];
     pushHistory(blocksRef.current);
     setBlocks(result);
     setTemplatePickerOpen(false);
@@ -283,8 +294,83 @@ function App({ onViewSite }) {
                     >
                       Redo ↪
                     </button>
+                    {/* -d list view */}
+                    <button
+                      className={`toolbar-btn ${listViewOpen ? 'active' : ''}`}
+                      onClick={() => setListViewOpen(prev => !prev)}
+                      title="List View"
+                    >
+                      ☰
+                    </button>
 
                     <span className="toolbar-hint">Drag to reorder • Click + to insert</span>
+                  </div>
+                  {/* -d addrd editor-layout and list view */}
+                  <div className="editor-split-layout">
+
+                    {/* LEFT: List View */}
+                    {listViewOpen && (
+                      <div className="editor-list-view">
+                        <ListView />
+                      </div>
+                    )}
+
+                    {/* RIGHT: ACTUAL EDITOR */}
+                    <div className="editor-content">
+
+                      <BlockTools>
+                        <div className="editor-canvas-wrapper">
+                          <WritingFlow>
+                            <ObserveTyping>
+                              <div className="editor-canvas">
+
+                                {blocks.length === 0 && (
+                                  <div className="empty-editor-hint">
+                                    <Inserter
+                                      rootClientId={undefined}
+                                      clientId={undefined}
+                                      isAppender
+                                      renderToggle={({ onToggle }) => (
+                                        <button
+                                          className="empty-inserter-btn"
+                                          onClick={onToggle}
+                                        >
+                                          <span className="plus-icon">+</span>
+                                          <span>Click to add your first block</span>
+                                        </button>
+                                      )}
+                                    />
+                                  </div>
+                                )}
+
+                                <BlockList />
+
+                                {blocks.length > 0 && (
+                                  <div className="bottom-inserter">
+                                    <Inserter
+                                      rootClientId={undefined}
+                                      clientId={undefined}
+                                      isAppender
+                                      renderToggle={({ onToggle }) => (
+                                        <button
+                                          className="inline-inserter-btn"
+                                          onClick={onToggle}
+                                        >
+                                          +
+                                        </button>
+                                      )}
+                                    />
+                                  </div>
+                                )}
+
+                              </div>
+                            </ObserveTyping>
+                          </WritingFlow>
+                        </div>
+                      </BlockTools>
+
+                    </div>
+
                   </div>
 
                   {/* ── Template Picker Panel (Step 19) ── */}
@@ -323,63 +409,7 @@ function App({ onViewSite }) {
                         ))}
                       </div>
                     </div>
-                  )}
-
-                  {/* ✅ BlockTools wraps everything for drag and toolbar */}
-                  <BlockTools>
-                    <div className="editor-canvas-wrapper">
-                      <WritingFlow>
-                        <ObserveTyping>
-                          <div className="editor-canvas">
-
-                            {/* ✅ Empty state */}
-                            {blocks.length === 0 && (
-                              <div className="empty-editor-hint">
-                                <Inserter
-                                  rootClientId={undefined}
-                                  clientId={undefined}
-                                  isAppender
-                                  renderToggle={({ onToggle }) => (
-                                    <button
-                                      className="empty-inserter-btn"
-                                      onClick={onToggle}
-                                    >
-                                      <span className="plus-icon">+</span>
-                                      <span>Click to add your first block</span>
-                                    </button>
-                                  )}
-                                />
-                              </div>
-                            )}
-
-                            {/* ✅ Main block list — drag and drop built in */}
-                            <BlockList />
-
-                            {/* ✅ Bottom inline + inserter */}
-                            {blocks.length > 0 && (
-                              <div className="bottom-inserter">
-                                <Inserter
-                                  rootClientId={undefined}
-                                  clientId={undefined}
-                                  isAppender
-                                  renderToggle={({ onToggle }) => (
-                                    <button
-                                      className="inline-inserter-btn"
-                                      onClick={onToggle}
-                                      title="Add block below"
-                                    >
-                                      +
-                                    </button>
-                                  )}
-                                />
-                              </div>
-                            )}
-
-                          </div>
-                        </ObserveTyping>
-                      </WritingFlow>
-                    </div>
-                  </BlockTools>
+                  )}                 
 
                 </div>
 
