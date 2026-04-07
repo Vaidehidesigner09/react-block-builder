@@ -38,7 +38,7 @@ const EDITOR_SETTINGS = {
   focusMode: false,
   isRTL: false,
   keepCaretInsideBlock: false,
-  bodyPlaceholder: 'Click + to add your first block...',
+  // bodyPlaceholder: 'Click + to add your first block...',
   supportsLayout: true,
   __experimentalFeatures: {
     // -d added layout support with content and wide widths
@@ -67,7 +67,7 @@ const EDITOR_SETTINGS = {
     {
       css: `
         .wp-block { max-width: 100%; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        body { font-family: "Montserrat", sans-serif; }
       `,
       isGlobalStyles: true,
     }
@@ -191,35 +191,48 @@ function App({ onViewSite }) {
       {/* ---- HEADER ---- */}
       <div className="editor-header">
         <div className="fp-editor-title-row">
-          <h1>Block Editor</h1>
+          <a href="/">
+            <div className="logo-image">
+              <img src={logoimage} alt="Logo" />
+            </div>
+          </a>
+        </div>
+        <div className="header-center">
           <input
-            className="page-title-input"
-            value={pageTitle}
-            onChange={e => setPageTitle(e.target.value)}
-            placeholder="Page title…"
-          />
+              className="page-title-input"
+              value={pageTitle}
+              onChange={e => setPageTitle(e.target.value)}
+              placeholder="Page title…"
+            />
         </div>
         <div className="header-actions">
-          <button
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            {sidebarOpen ? '⬛ Hide Panel' : '⬜ Show Panel'}
+          <button className="sidebar-toggle-btn header-btn-wrap" onClick={()=> setSidebarOpen(!sidebarOpen)}
+            >
+            <FaColumns />
+            {sidebarOpen ? '' : ''}
           </button>
-          <button
-            className="preview-btn"
-            onClick={() => setPreview(!preview)}
-          >
-            {preview ? '✏️ Edit' : '👁️ Preview'}
+
+          <button className="preview-btn header-btn-wrap" onClick={()=> setPreview(!preview)}
+            >
+            {preview ?
+            <FaEdit /> :
+            <FaEye />}
+            {preview ? '' : ''}
           </button>
-          <button className="clear-btn" onClick={handleClear}>
-            Clear
+
+          <button className="clear-btn header-btn-wrap" onClick={handleClear}>
+            <FaTrash />
+            
           </button>
-          <button className="save-btn" onClick={handleSave}>
-            {saved ? 'Saved ✓' : 'Save'}
+
+          <button className="save-btn header-btn-wrap" onClick={handleSave}>
+            <FaSave />
+            {saved ? '' : ''}
           </button>
+
           <button className="view-site-btn" onClick={onViewSite} title="View the saved page as a visitor would see it">
-            🌐 View Site
+            <FaGlobe />
+            View Site
           </button>
         </div>
       </div>
@@ -265,7 +278,7 @@ function App({ onViewSite }) {
                           onClick={onToggle}
                           title="Add block"
                         >
-                          + Add Block
+                        <FaPlus />
                         </button>
                       )}
                     />
@@ -278,7 +291,16 @@ function App({ onViewSite }) {
                       onClick={() => setTemplatePickerOpen(o => !o)}
                       title="Insert a pre-built block template"
                     >
-                      📋 Templates
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <rect x="3" y="3" width="18" height="18" rx="2" stroke="#0F172A" strokeWidth="2"/>
+                          
+                          {/* Top full width */}
+                          <rect x="6" y="6" width="12" height="3" stroke="#0F172A" strokeWidth="2"/>
+                          
+                          {/* Bottom split */}
+                          <rect x="6" y="11" width="5" height="7" stroke="#0F172A" strokeWidth="2"/>
+                          <rect x="13" y="11" width="5" height="7" stroke="#0F172A" strokeWidth="2"/>
+                        </svg>
                     </button>
 
                     <div className="toolbar-divider" />
@@ -288,9 +310,9 @@ function App({ onViewSite }) {
                       className="toolbar-btn"
                       onClick={handleUndo}
                       disabled={!canUndo}
-                      title="Undo (Ctrl+Z)"
+                      title=""
                     >
-                      ↩ Undo
+                     <LuUndo />
                     </button>
                     <button
                       className="toolbar-btn"
@@ -298,7 +320,7 @@ function App({ onViewSite }) {
                       disabled={!canRedo}
                       title="Redo (Ctrl+Y)"
                     >
-                      Redo ↪
+                     <LuRedo />
                     </button>
                     {/* -d list view */}
                     <button
@@ -309,7 +331,6 @@ function App({ onViewSite }) {
                       ☰
                     </button>
 
-                    <span className="toolbar-hint">Drag to reorder • Click + to insert</span>
                   </div>
                   {/* -d addrd editor-layout and list view */}
                   <div className="editor-split-layout">
