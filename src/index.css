@@ -66,7 +66,7 @@ p{
 /* Gutenberg overrides */
 .builder-wrapper .block-editor-block-list__layout {
   min-height: 400px;
-  width: 70%;
+  width: 100%;
 }
 
 .builder-wrapper .wp-block {
@@ -496,7 +496,10 @@ p{
   justify-content: center;
   padding: 15px;
 }
-
+.inserter-active .builder-wrapper .editor-canvas {
+  width: calc(100% - 350px);
+  margin-left: auto;
+}
 .builder-wrapper .empty-inserter-btn {
   display: flex;
   flex-direction: column;
@@ -1366,6 +1369,7 @@ p{
   box-shadow: none;
   border-right: 1px solid #ddd;
   padding: 0px !important;
+  width: 350px;
 }
 .components-popover__fallback-container .block-editor-inserter__popover .block-editor-inserter__menu {
   margin: 0px;
@@ -1444,4 +1448,16 @@ p{
 }
 .builder-wrapper .fp-main{
   max-width: 100%;
+}
+.editor-list-view{
+  width: 350px;
+  height: 100vh;
+  border-right: 1px solid #ddd;
+  position: absolute;
+  left: 0px;
+}
+
+.list-view-active .builder-wrapper .editor-canvas{
+  width: calc(100% - 350px);
+  margin-left: auto;
 }
