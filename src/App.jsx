@@ -39,11 +39,11 @@ import '@wordpress/block-library/build-module';
 
 const EDITOR_SETTINGS = {
   // -d changed the fixed toolbar to false(now true for wordpress like tools) and inline toolbar to true provide  us the aligment feature
-  hasFixedToolbar: false,
+  hasFixedToolbar: true,
   hasInlineToolbar: true,
   // -d added block mover as true 
   hasBlockMover: true,
-  focusMode: false,
+  focusMode: true,
   isRTL: false,
   keepCaretInsideBlock: false,
  // bodyPlaceholder: 'Click + to add your first block...',
@@ -261,7 +261,9 @@ function App({ onViewSite }) {
               value={blocks}
               onInput={setBlocks}
               onChange={(newBlocks) => {
-                pushHistory(blocksRef.current);
+                if (newBlocks !== blocksRef.current) {
+                  pushHistory(blocksRef.current);
+                }
                 setBlocks(newBlocks);
               }}
               settings={EDITOR_SETTINGS}
