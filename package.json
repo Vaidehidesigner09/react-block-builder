@@ -26,6 +26,8 @@
     "@wordpress/data": "^9.28.0",
     "@wordpress/element": "^5.35.0",
     "@wordpress/format-library": "^5.43.0",
+    "@wordpress/icons": "^12.1.0",
+    "@wordpress/keyboard-shortcuts": "^5.43.0",
     "@wordpress/rich-text": "^6.35.0",
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
