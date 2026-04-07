@@ -46,7 +46,7 @@ const EDITOR_SETTINGS = {
   focusMode: false,
   isRTL: false,
   keepCaretInsideBlock: false,
-  bodyPlaceholder: 'Click + to add your first block...',
+  bodyPlaceholder: 'Click + to add your first block..',
   supportsLayout: true,
   __experimentalFeatures: {
     // -d added layout support with content and wide widths
@@ -135,6 +135,16 @@ function App({ onViewSite }) {
       document.body.classList.remove('list-view-active');
     };
   }, [listViewOpen]);
+
+  useEffect(() => {
+    const btns = document.querySelectorAll(
+      ".block-editor-block-mover__drag-handle"
+    );
+  
+    btns.forEach((btn) => {
+      btn.classList.add("my-custom-class");
+    });
+  }, []);
   
   async function loadBlocks() {
     try {
@@ -393,24 +403,7 @@ function App({ onViewSite }) {
                           <div className="editor-canvas">
 
                             {/* ✅ Empty state */}
-                            {blocks.length === 0 && (
-                              <div className="empty-editor-hint">
-                                <Inserter
-                                  rootClientId={undefined}
-                                  clientId={undefined}
-                                  isAppender
-                                  renderToggle={({ onToggle }) => (
-                                    <button
-                                      className="empty-inserter-btn"
-                                      onClick={onToggle}
-                                    >
-                                      <FaPlus />
-                                      <span>Click to add your first block</span>
-                                    </button>
-                                  )}
-                                />
-                              </div>
-                            )}
+                     
 
                             {/* ✅ Main block list — drag and drop built in */}
                             <BlockList />
