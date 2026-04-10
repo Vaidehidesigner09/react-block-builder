@@ -1,18 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelect, useDispatch } from "@wordpress/data";
 import { select, subscribe } from "@wordpress/data";
+
 // -d added the format library for text formatting options (bold, italic, etc.)
-import {
-  BlockEditorProvider,
-  BlockList,
-  BlockTools,
-  WritingFlow,
-  ObserveTyping,
-  Inserter,
-  BlockEditorKeyboardShortcuts,
-  BlockInspector,
-} from '@wordpress/block-editor';
-// -d 
+import {BlockEditorProvider,BlockList,BlockTools,WritingFlow,ObserveTyping,Inserter,BlockEditorKeyboardShortcuts,BlockInspector,} from '@wordpress/block-editor';
 import { __experimentalListView as ListView } from '@wordpress/block-editor';
 import { serialize, parse, createBlock } from '@wordpress/blocks';
 import { SlotFillProvider, Popover } from '@wordpress/components';
@@ -27,26 +18,89 @@ import {
 
 import { LuUndo,LuRedo } from "react-icons/lu";
 const DEFAULT_PAGE_ID = 'home';
-
 // -d adding the styles
 import '@wordpress/block-editor/build-style/style.css';
 import '@wordpress/components/build-style/style.css';
 import '@wordpress/block-library/build-style/style.css';
 import '@wordpress/block-library/build-style/theme.css';
-import {
-  InspectorControls,
-} from "@wordpress/block-editor";
 
-import {
-  PanelBody,
-  RangeControl,
-  SelectControl,
-  ToggleControl,
-} from "@wordpress/components";
-// import '@wordpress/format-library';
 
-// Database functions are now in src/data/api.js — swap the bodies there
 // to point at any real backend (Express, WordPress REST API, Supabase, etc.)
+const enableBorderForAllBlocks = () => {
+  const blocks = select('core/blocks').getBlockTypes();
+
+  blocks.forEach((block) => {
+    dispatch('core/blocks').updateBlockType(block.name, {
+      supports: {
+        ...block.supports,
+        border: {
+          color: true,
+          radius: true,
+          width: true,
+          style: true,
+        },
+      },
+    });
+  });
+};
+
+// Run once after load
+setTimeout(enableBorderForAllBlocks, 100);
+
+
+const enableHeadingTypography = () => {
+  const { select, dispatch } = wp.data;
+
+  const blocks = select('core/blocks').getBlockTypes();
+
+  blocks.forEach((block) => {
+    if (block.name === 'core/heading') {
+      dispatch('core/blocks').updateBlockType(block.name, {
+        supports: {
+          ...block.supports,
+          typography: {
+            fontSize: true,
+            lineHeight: true,
+            fontWeight: true,
+            letterSpacing: true,
+            textTransform: true,
+            textDecoration: true,
+          },
+        },
+      });
+    }
+  });
+};
+
+const enhanceHeadingBlock = () => {
+  const { select, dispatch } = wp.data;
+
+  const heading = select('core/blocks').getBlockType('core/heading');
+  if (!heading) return;
+
+  dispatch('core/blocks').updateBlockType('core/heading', {
+    supports: {
+      ...heading.supports,
+
+      typography: {
+        fontSize: true,
+        lineHeight: true,
+        __experimentalFontStyle: true,
+        __experimentalFontWeight: true,
+        __experimentalLetterSpacing: true,
+        __experimentalTextTransform: true,
+        __experimentalTextDecoration: true,
+      },
+
+      spacing: {
+        margin: true,
+        padding: true,
+      },
+    }
+  });
+};
+
+setTimeout(enhanceHeadingBlock, 200);
 
 
 const EDITOR_SETTINGS = {
@@ -64,15 +118,23 @@ const EDITOR_SETTINGS = {
   enableCustomSpacingSize: true,
   enableCustomUnits: ['px', 'em', 'rem', '%', 'vw', 'vh'],
   fontSizes: [
-    { name: 'Small',   slug: 'small',     size: 12 },
-    { name: 'Normal',  slug: 'normal',    size: 16 },
-    { name: 'Medium',  slug: 'medium',    size: 20 },
-    { name: 'Large',   slug: 'large',     size: 24 },
-    { name: 'XL',      slug: 'x-large',   size: 32 },
-    { name: '2XL',     slug: 'xx-large',  size: 40 },
-    { name: '3XL',     slug: 'xxx-large', size: 48 },
-    { name: 'Huge',    slug: 'huge',      size: 64 },
+    { name: 'Small', slug: 'small', size: '12px' },
+    { name: 'Normal', slug: 'normal', size: '16px' },
+    { name: 'Medium', slug: 'medium', size: '20px' },
+    { name: 'Large', slug: 'large', size: '24px' },
+    { name: 'XL', slug: 'x-large', size: '32px' },
+    { name: '2XL', slug: 'xx-large', size: '40px' },
+    { name: '3XL', slug: 'xxx-large', size: '48px' },
+    { name: 'Huge', slug: 'huge', size: '64px' },
   ],
+
+  border: {
+    color: true,
+    radius: true,
+    width: true,
+    style: true,
+  },
+  
   colors: [
     { name: 'Black',      slug: 'black',      color: '#000000' },
     { name: 'White',      slug: 'white',      color: '#ffffff' },
@@ -108,7 +170,7 @@ const EDITOR_SETTINGS = {
   __experimentalFeatures: {
     color: { text: true, background: true, customColor: true, link: true, gradients: true, customGradient: true },
     typography: { fontSize: true, lineHeight: true, fontStyle: true, fontWeight: true, letterSpacing: true, textDecoration: true, textTransform: true },
-    spacing: { padding: true, margin: true, blockGap: true, units: ['px','em','rem','%','vw','vh'] },
+    spacing: { padding: true, margin: true, units: ['px','em','rem','%','vw','vh'] },
     border: { color: true, radius: true, style: true, width: true },
     layout: { contentSize: '800px', wideSize: '1200px' },
   },
@@ -163,146 +225,6 @@ const EDITOR_SETTINGS = {
 };
 
 
-const FullInspector = () => {
-  const selected = useSelect(
-    (select) => select("core/block-editor").getSelectedBlock()
-  ); // ❌ REMOVE [] dependency
-
-  const { updateBlockAttributes } = useDispatch("core/block-editor");
-
-  if (!selected) return <div style={{ padding: 12 }}>No block selected</div>;
-
-  const style = selected.attributes.style || {};
-
-  // ✅ SAFE FONT SIZE VALUE
-  const fontSize = parseInt(style?.typography?.fontSize) || 50;
-
-  const updateStyle = (path, value) => {
-    const newStyle = JSON.parse(JSON.stringify(style || {}));
-
-    const keys = path.split(".");
-    let obj = newStyle;
-
-    while (keys.length > 1) {
-      const key = keys.shift();
-      obj[key] = obj[key] || {};
-      obj = obj[key];
-    }
-
-    obj[keys[0]] = value;
-
-    updateBlockAttributes(selected.clientId, {
-      style: newStyle,
-    });
-  };
-
-  return (
-    <div style={{ padding: "12px" }}>
-
-      {/* Typography */}
-      <div className="panel">
-        <h4>Typography</h4>
-
-        <RangeControl
-          label="Font Size"
-          min={10}
-          max={100}
-          value={fontSize}
-          onChange={(val) =>
-            updateStyle("typography.fontSize", `${val}px`)
-          }
-        />
-      </div>
-
-      {/* Dimensions */}
-      <div className="panel">
-        <h4>Dimensions</h4>
-
-        <label>Margin</label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={parseInt(style?.spacing?.margin) || 0}
-          onChange={(e) =>
-            updateStyle("spacing.margin", `${e.target.value}px`)
-          }
-        />
-
-        <label>Padding</label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={parseInt(style?.spacing?.padding) || 0}
-          onChange={(e) =>
-            updateStyle("spacing.padding", `${e.target.value}px`)
-          }
-        />
-      </div>
-
-      {/* Border */}
-      <div className="panel">
-        <h4>Border</h4>
-
-        <label>Width</label>
-        <input
-          type="range"
-          min="0"
-          max="20"
-          value={parseInt(style?.border?.width) || 0}
-          onChange={(e) =>
-            updateStyle("border.width", `${e.target.value}px`)
-          }
-        />
-
-        <label>Radius</label>
-        <input
-          type="range"
-          min="0"
-          max="50"
-          value={parseInt(style?.border?.radius) || 0}
-          onChange={(e) =>
-            updateStyle("border.radius", `${e.target.value}px`)
-          }
-        />
-      </div>
-
-      {/* Height */}
-      <div className="panel">
-        <h4>Height</h4>
-        <select
-          value={style?.dimensions?.height || "auto"}
-          onChange={(e) =>
-            updateStyle("dimensions.height", e.target.value)
-          }
-        >
-          <option value="auto">Fit</option>
-          <option value="100%">Grow</option>
-          <option value="300px">Fixed</option>
-        </select>
-      </div>
-
-      {/* Shadow */}
-      <div className="panel">
-        <h4>Shadow</h4>
-        <input
-          type="checkbox"
-          checked={!!style?.shadow}
-          onChange={(e) =>
-            updateStyle(
-              "shadow",
-              e.target.checked
-                ? "0px 4px 10px rgba(0,0,0,0.2)"
-                : undefined
-            )
-          }
-        />
-      </div>
-
-    </div>
-  );
-};
 
 function App({ onViewSite }) {
     const [blocks, setBlocks] = useState([]);
@@ -388,9 +310,6 @@ function App({ onViewSite }) {
     try {
       const html = serialize(blocks);
       const json = JSON.stringify(blocks, null, 2);
-
-      // savePage() is defined in src/data/api.js
-      // Swap the body there to use fetch() against your real backend
       await savePage(pageId, pageTitle, html, json);
 
       setOutput({ html, json });
@@ -709,7 +628,6 @@ function App({ onViewSite }) {
                     </div>
                     <div className="sidebar-body">
                       <BlockInspector />
-                      <FullInspector />
 
                     </div>
                   </div>

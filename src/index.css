@@ -1362,7 +1362,10 @@ h1{
 .components-popover__fallback-container .components-dropdown__content .components-popover__content{
   left: -15px;
   position: relative;
-  height: 100vh;
+  height: 100%;
+  border-radius: 0px;
+  border: 1px solid #ddd;
+  overflow-x: hidden !important;
 }
 .components-popover__fallback-container .components-popover__content{
   box-shadow: none;
@@ -1594,4 +1597,41 @@ body :where(.editor-styles-wrapper) .is-layout-flex {
 }
 .block-editor-block-list__block {
   font-size: inherit;
+}
+.components-unit-control__select{
+  font-size: 14px;
+}
+.components-button-group{
+  display: flex;
+}
+.components-button.is-small{
+  width: 25%;
+  text-align: center;
+  justify-content: center;
+  font-size: 13px;
+  padding: 10px;
+  height: 35px;
+}
+.components-border-radius-control{
+  border: 0px;
+}
+.components-unit-control__select,.components-range-control__wrapper{
+  color: var(--primary) !important;
+}
+.components-unit-control__select{
+  font-size: 12px !important;
+  padding: 0px !important;
+  margin-right: 5px !important;
+}
+.block-editor-block-inspector h2, .block-editor-block-inspector h3{
+  font-size: 13px;
+  color: var(--black);
+  font-weight: 600;
+}
+.components-grid span{
+  font-weight: 600;
+}
+.components-panel__body-toggle.components-button,.components-border-radius-control legend{
+  color: var(--black);
+  font-weight: 600;
 }

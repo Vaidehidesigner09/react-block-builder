@@ -11,12 +11,22 @@ function addCustomSupports(settings, name) {
       gradients: true,
       link: true,
     },
+
+    border: {
+      color: true,
+      radius: true,
+      width: true,
+      style: true,
+    },
+    
     spacing: {
       margin: true,
       padding: true,
       blockGap: true,
     },
     shadow: true,
+
+   
   };
 
   // Apply only to specific blocks
@@ -27,6 +37,7 @@ function addCustomSupports(settings, name) {
         fontSize: true,
         lineHeight: true,
         textAlign: true,
+  
       },
       color: {
         text: true,
