@@ -3,17 +3,7 @@ import { useSelect, useDispatch } from "@wordpress/data";
 import { select, subscribe } from "@wordpress/data";
 
 // -d added the format library for text formatting options (bold, italic, etc.)
-import {
-  BlockEditorProvider,
-  BlockList,
-  BlockTools,
-  WritingFlow,
-  ObserveTyping,
-  Inserter,
-  BlockEditorKeyboardShortcuts,
-  BlockInspector,
-} from '@wordpress/block-editor';
-// -d 
+import {BlockEditorProvider,BlockList,BlockTools,WritingFlow,ObserveTyping,Inserter,BlockEditorKeyboardShortcuts,BlockInspector,} from '@wordpress/block-editor';
 import { __experimentalListView as ListView } from '@wordpress/block-editor';
 import { serialize, parse, createBlock } from '@wordpress/blocks';
 import { SlotFillProvider, Popover } from '@wordpress/components';
@@ -28,25 +18,13 @@ import {
 
 import { LuUndo,LuRedo } from "react-icons/lu";
 const DEFAULT_PAGE_ID = 'home';
-
 // -d adding the styles
 import '@wordpress/block-editor/build-style/style.css';
 import '@wordpress/components/build-style/style.css';
 import '@wordpress/block-library/build-style/style.css';
 import '@wordpress/block-library/build-style/theme.css';
-import {
-  InspectorControls,
-} from "@wordpress/block-editor";
 
-import {
-  PanelBody,
-  RangeControl,
-  SelectControl,
-  ToggleControl,
-} from "@wordpress/components";
-// import '@wordpress/format-library';
 
-// Database functions are now in src/data/api.js — swap the bodies there
 // to point at any real backend (Express, WordPress REST API, Supabase, etc.)
 const enableBorderForAllBlocks = () => {
   const blocks = select('core/blocks').getBlockTypes();
@@ -68,6 +46,62 @@ const enableBorderForAllBlocks = () => {
 
 // Run once after load
 setTimeout(enableBorderForAllBlocks, 100);
+
+
+const enableHeadingTypography = () => {
+  const { select, dispatch } = wp.data;
+
+  const blocks = select('core/blocks').getBlockTypes();
+
+  blocks.forEach((block) => {
+    if (block.name === 'core/heading') {
+      dispatch('core/blocks').updateBlockType(block.name, {
+        supports: {
+          ...block.supports,
+          typography: {
+            fontSize: true,
+            lineHeight: true,
+            fontWeight: true,
+            letterSpacing: true,
+            textTransform: true,
+            textDecoration: true,
+          },
+        },
+      });
+    }
+  });
+};
+
+const enhanceHeadingBlock = () => {
+  const { select, dispatch } = wp.data;
+
+  const heading = select('core/blocks').getBlockType('core/heading');
+  if (!heading) return;
+
+  dispatch('core/blocks').updateBlockType('core/heading', {
+    supports: {
+      ...heading.supports,
+
+      typography: {
+        fontSize: true,
+        lineHeight: true,
+        __experimentalFontStyle: true,
+        __experimentalFontWeight: true,
+        __experimentalLetterSpacing: true,
+        __experimentalTextTransform: true,
+        __experimentalTextDecoration: true,
+      },
+
+      spacing: {
+        margin: true,
+        padding: true,
+      },
+    }
+  });
+};
+
+setTimeout(enhanceHeadingBlock, 200);
+
 
 const EDITOR_SETTINGS = {
   hasFixedToolbar: true,
@@ -276,9 +310,6 @@ function App({ onViewSite }) {
     try {
       const html = serialize(blocks);
       const json = JSON.stringify(blocks, null, 2);
-
-      // savePage() is defined in src/data/api.js
-      // Swap the body there to use fetch() against your real backend
       await savePage(pageId, pageTitle, html, json);
 
       setOutput({ html, json });

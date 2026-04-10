@@ -1631,7 +1631,7 @@ body :where(.editor-styles-wrapper) .is-layout-flex {
 .components-grid span{
   font-weight: 600;
 }
-.components-panel__body-toggle.components-button{
+.components-panel__body-toggle.components-button,.components-border-radius-control legend{
   color: var(--black);
   font-weight: 600;
 }
